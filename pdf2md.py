@@ -6,6 +6,14 @@ import sys
 import pymupdf
 import pymupdf4llm
 
+
+def normalize_list_indent(indent: str) -> str:
+    width = len(indent)
+    if width >= 3 and width % 3 == 0:
+        return " " * ((width // 3) * 2)
+    return " " * ((width // 2) * 2)
+
+
 def clean_markdown(markdown: str) -> str:
     cleaned = markdown
     cleaned = re.sub(
@@ -19,6 +27,11 @@ def clean_markdown(markdown: str) -> str:
     cleaned = re.sub(r"(?m)^([ \t]*[-*+] .+)\n\n(?=[ \t]*[-*+] )", r"\1\n", cleaned)
     cleaned = re.sub(r"(?m)^([ \t]*\d+\. .+)\n\n(?=[ \t]*\d+\. )", r"\1\n", cleaned)
     cleaned = re.sub(r"(?m)^([ \t]*[-*+] )●\s+", r"\1", cleaned)
+    cleaned = re.sub(
+        r"(?m)^( +)([-*+] |\d+\. )",
+        lambda match: normalize_list_indent(match.group(1)) + match.group(2),
+        cleaned,
+    )
     return cleaned.strip() + "\n"
 
 
